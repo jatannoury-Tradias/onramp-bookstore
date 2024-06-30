@@ -35,3 +35,32 @@ describe('Post /api/books', () => {
     expect(response.body.data).toHaveProperty('id');
   });
 });
+
+describe('Get /api/books', () => {
+  it('should return a list of books', async () => {
+    const response = await request(app).get('/api/books');
+    expect(response.status).toBe(200);
+    response.body.forEach((book: Book) => {
+      expect(book).toHaveProperty('id');
+      expect(book).toHaveProperty('title');
+      expect(book).toHaveProperty('author');
+    });
+  });
+  it('should return a book by its Id', async () => {
+    const addBookresponse = await request(app)
+      .post('/api/books')
+      .send(booksFixtures.newBook);
+    const { id: addedBookId } = addBookresponse.body.data;
+    const response = await request(app).get(`/api/books/${addedBookId}`);
+    expect(response.status).toBe(200);
+    expect(response.body.data).toHaveProperty('id');
+    expect(response.body.data).toHaveProperty('title');
+    expect(response.body.data).toHaveProperty('author');
+  });
+
+  it('should not return a book', async () => {
+    const response = await request(app).get(`/api/books/test`);
+    expect(response.status).toBe(404);
+  });
+});
+

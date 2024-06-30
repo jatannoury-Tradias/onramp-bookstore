@@ -17,7 +17,7 @@ router.get('/:id', (req: Request, res: Response, next: NextFunction) => {
     const { id: bookId } = req.params;
     let bookIndex = books.findIndex((book) => book.id === bookId);
     if (bookIndex === -1) {
-      throw new HttpException(400, 'Book not found!');
+      throw new HttpException(404, 'Book not found!');
     }
     return res.status(200).json({ data: books[bookIndex] });
   } catch (error) {
