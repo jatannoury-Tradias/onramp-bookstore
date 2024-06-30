@@ -1,37 +1,43 @@
 import express from 'express';
+import { v4 as uuidv4 } from 'uuid';
 
 const app = express();
 
-let books = [
-  {
-    id: 1,
-    title: 'The Great Gatsby',
-    author: 'F. Scott Fitzgerald',
-  },
-  {
-    id: 2,
-    title: 'The Catcher in the Rye',
-    author: 'J.D. Salinger',
-  },
-  {
-    id: 3,
-    title: 'To Kill a Mockingbird',
-    author: 'Harper Lee',
-  },
-];
+interface Book {
+  id: string;
+  title: string;
+  author: string;
+}
+
+let books: Book[] = [];
+
+function isBook(obj: any): obj is Book {
+  return typeof obj.title === 'string' && typeof obj.author === 'string';
+}
 
 app.get('/api/books', (req, res) => {
   res.json(books);
 });
 
-// delete book by ID
+// add book
+app.post('/api/books', (req, res) => {
+  let newBook = req.body;
+  if (!isBook(newBook)) {
+    return res.status(422).json({ message: 'Invalid book format' });
+  }
+  newBook.id = uuidv4();
+  books.push(newBook);
+  res.status(201).json({ message: 'Book Added' });
+});
+
+// delete book by its book ID
 app.delete('/api/books', (req, res) => {
   const bookId: string = (req.query?.id as string) || '';
   if (!bookId) {
     return res.status(422).json({ message: 'A book Id is required!' });
   }
   const initialLength = books.length;
-  books = books.filter((book) => book.id !== parseInt(bookId, 10));
+  books = books.filter((book) => book.id !== bookId);
 
   if (books.length === initialLength) {
     return res.status(404).json({ message: 'Book not found' });
