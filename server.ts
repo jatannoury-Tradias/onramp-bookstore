@@ -2,7 +2,7 @@ import express from 'express';
 
 const app = express();
 
-const books = [
+let books = [
   {
     id: 1,
     title: 'The Great Gatsby',
@@ -22,6 +22,22 @@ const books = [
 
 app.get('/api/books', (req, res) => {
   res.json(books);
+});
+
+// delete book by ID
+app.delete('/api/books', (req, res) => {
+  const bookId: string = (req.query?.id as string) || '';
+  if (!bookId) {
+    return res.status(422).json({ message: 'A book Id is required!' });
+  }
+  const initialLength = books.length;
+  books = books.filter((book) => book.id !== parseInt(bookId, 10));
+
+  if (books.length === initialLength) {
+    return res.status(404).json({ message: 'Book not found' });
+  }
+
+  return res.status(200).json({ message: 'Book deleted successfully' });
 });
 
 const server = app.listen(3030, () => {
