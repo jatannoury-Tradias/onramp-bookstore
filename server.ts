@@ -1,6 +1,6 @@
 import express from 'express';
-import bookRoutes from './src/routes/books.js';
-import { errorHandler } from './src/middlewares/errorHandlers.js';
+import bookRoutes from './src/routes/books';
+import { errorHandler } from './src/middlewares/errorHandlers';
 
 const app = express();
 app.use(express.json());

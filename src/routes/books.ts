@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction, Router } from 'express';
 import { v4 as uuidv4 } from 'uuid';
-import { Book } from '../types/books.js';
-import { BooksHelper } from '../methods/books.js';
-import { HttpException } from '../middlewares/errorHandlers.js';
+import { Book } from '../types/books';
+import { BooksHelper } from '../methods/books';
+import { HttpException } from '../middlewares/errorHandlers';
 
 const router = Router();
 
@@ -28,12 +28,7 @@ router.get('/:id', (req: Request, res: Response, next: NextFunction) => {
 router.post('/', (req: Request, res: Response, next: NextFunction) => {
   try {
     let newBook = req.body;
-    if (
-      !newBook.title ||
-      typeof newBook.title !== 'string' ||
-      !newBook.author ||
-      typeof newBook.author !== 'string'
-    ) {
+    if (!BooksHelper.isBook(newBook)) {
       throw new HttpException(422, 'Invalid book format');
     }
     newBook.id = uuidv4();
