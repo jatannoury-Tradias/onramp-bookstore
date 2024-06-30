@@ -1,7 +1,8 @@
-import { Router } from 'express';
+import { Request, Response, NextFunction, Router } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import { Book } from '../types/books.js';
 import { BooksHelper } from '../methods/books.js';
+import { HttpException } from '../middlewares/errorHandlers.js';
 
 const router = Router();
 
@@ -11,56 +12,85 @@ router.get('', (req, res) => {
   res.json(books);
 });
 
-// add book
-router.post('', (req, res) => {
-  let newBook = req.body;
-  if (!BooksHelper.isBook(newBook)) {
-    return res.status(422).json({ message: 'Invalid book format' });
+router.get('/:id', (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { id: bookId } = req.params;
+    let bookIndex = books.findIndex((book) => book.id === bookId);
+    if (bookIndex === -1) {
+      throw new HttpException(400, 'Book not found!');
+    }
+    return res.status(200).json({ data: books[bookIndex] });
+  } catch (error) {
+    next(error);
   }
-  newBook.id = uuidv4();
-  books.push(newBook);
-  return res.status(201).json({ message: 'Book Added', data: newBook });
+});
+// add book
+router.post('/', (req: Request, res: Response, next: NextFunction) => {
+  try {
+    let newBook = req.body;
+    if (
+      !newBook.title ||
+      typeof newBook.title !== 'string' ||
+      !newBook.author ||
+      typeof newBook.author !== 'string'
+    ) {
+      throw new HttpException(422, 'Invalid book format');
+    }
+    newBook.id = uuidv4();
+    books.push(newBook);
+    return res.status(201).json({ message: 'Book Added', data: newBook });
+  } catch (err) {
+    next(err); // Forward the error to the error handling middleware
+  }
 });
 
 // delete book by its book ID
-router.delete('/:id', (req, res) => {
-  const { id: bookId } = req.params;
-  if (!bookId) {
-    return res.status(422).json({ message: 'A book Id is required!' });
-  }
-  const initialLength = books.length;
-  books = books.filter((book) => book.id !== bookId);
+router.delete('/:id', (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { id: bookId } = req.params;
+    if (!bookId) {
+      throw new HttpException(422, 'A book Id is required!');
+    }
+    const initialLength = books.length;
+    books = books.filter((book) => book.id !== bookId);
 
-  if (books.length === initialLength) {
-    return res.status(404).json({ message: 'Book not found' });
-  }
+    if (books.length === initialLength) {
+      throw new HttpException(400, 'Book not found');
+    }
 
-  return res.status(200).json({ message: 'Book deleted successfully' });
+    return res.status(200).json({ message: 'Book deleted successfully' });
+  } catch (error) {
+    next(error);
+  }
 });
 
-router.patch('/:id', (req, res) => {
-  const { id } = req.params;
-  const { title, author } = req.body;
+router.patch('/:id', (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { id } = req.params;
+    const { title, author } = req.body;
 
-  if (!id) {
-    return res.status(422).json({ message: 'A book Id is required!' });
+    if (!id) {
+      throw new HttpException(422, 'A book Id is required!');
+    }
+    if (!title && !author) {
+      throw new HttpException(422, 'No updatable field provided!');
+    }
+
+    let bookIndex = books.findIndex((book) => book.id === id);
+    if (bookIndex === -1) {
+      throw new HttpException(400, 'Book not found!');
+    }
+
+    if (title) books[bookIndex].title = title;
+    if (author) books[bookIndex].author = author;
+
+    return res.status(201).json({
+      message: 'Book updated successfully!',
+      data: books[bookIndex],
+    });
+  } catch (error) {
+    next(error);
   }
-  if (!title && !author) {
-    return res.status(422).json({ message: 'No updatable field provided!' });
-  }
-
-  let bookIndex = books.findIndex((book) => book.id === id);
-  if (bookIndex === -1) {
-    return res.status(404).json({ message: 'Book not found!' });
-  }
-
-  if (title) books[bookIndex].title = title;
-  if (author) books[bookIndex].author = author;
-
-  return res.status(200).json({
-    message: 'Book updated successfully!',
-    data: books[bookIndex],
-  });
 });
 
 export default router;
