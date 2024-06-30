@@ -53,7 +53,7 @@ router.delete('/:id', (req: Request, res: Response, next: NextFunction) => {
       throw new HttpException(400, 'Book not found');
     }
 
-    return res.status(200).json({ message: 'Book deleted successfully' });
+    return res.status(201).json({ message: 'Book deleted successfully' });
   } catch (error) {
     next(error);
   }

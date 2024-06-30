@@ -64,3 +64,21 @@ describe('Get /api/books', () => {
   });
 });
 
+describe('Delete /api/books', () => {
+  it('should return a 404 status code', async () => {
+    const response = await request(app).delete('/api/books?id=testingBookId1');
+    expect(response.status).toBe(404);
+  });
+  it('should delete a book', async () => {
+    const addBookresponse = await request(app)
+      .post('/api/books')
+      .send(booksFixtures.newBook);
+    const { id: addedBookId } = addBookresponse.body.data;
+    const getBookResponse = await request(app).get(`/api/books/${addedBookId}`);
+    expect(getBookResponse.status).toBe(200);
+    const deleteBookResponse = await request(app).delete(
+      `/api/books/${addedBookId}`,
+    );
+    expect(deleteBookResponse.status).toBe(201);
+  });
+});
