@@ -11,7 +11,11 @@ export class HttpException extends Error {
   }
 }
 
-export function errorHandler(err: HttpException, res: Response) {
+export function errorHandler(
+  err: HttpException,
+  req: Request,
+  res: Response,
+) {
   const status = err.status || 500;
   const message = err.message || 'Something went wrong';
 
