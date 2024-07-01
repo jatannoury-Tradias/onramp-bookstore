@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response } from 'express';
 
 export class HttpException extends Error {
   status: number;
@@ -11,11 +11,7 @@ export class HttpException extends Error {
   }
 }
 
-export function errorHandler(
-  err: HttpException,
-  req: Request,
-  res: Response,
-) {
+export function errorHandler(err: HttpException, req: Request, res: Response) {
   const status = err.status || 500;
   const message = err.message || 'Something went wrong';
 

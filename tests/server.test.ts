@@ -8,13 +8,14 @@ type Book = {
   title: string;
   author: string;
 };
+/* eslint-disable-next-line @typescript-eslint/no-explicit-any */
 let booksFixtures: Record<string, any>;
 
 const loadFixture = (fixturePath: string): Book[] => {
   const filePath = path.join(__dirname, fixturePath);
   return JSON.parse(fs.readFileSync(filePath, 'utf8'));
 };
-
+/* eslint-disable-next-line no-undef */
 beforeAll(() => {
   booksFixtures = loadFixture('./fixtures/books.json');
 });
@@ -82,4 +83,3 @@ describe('Delete /api/books', () => {
     expect(deleteBookResponse.status).toBe(201);
   });
 });
-
