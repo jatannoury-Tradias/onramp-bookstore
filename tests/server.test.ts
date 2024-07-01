@@ -67,7 +67,7 @@ describe('Get /api/books', () => {
 
 describe('Delete /api/books', () => {
   it('should return a 404 status code', async () => {
-    const response = await request(app).delete('/api/books?id=testingBookId1');
+    const response = await request(app).delete('/api/books/testingBookId1');
     expect(response.status).toBe(404);
   });
   it('should delete a book', async () => {

@@ -50,7 +50,7 @@ router.delete('/:id', (req: Request, res: Response, next: NextFunction) => {
     books = books.filter((book) => book.id !== bookId);
 
     if (books.length === initialLength) {
-      throw new HttpException(400, 'Book not found');
+      throw new HttpException(404, 'Book not found');
     }
 
     return res.status(201).json({ message: 'Book deleted successfully' });
@@ -73,7 +73,7 @@ router.patch('/:id', (req: Request, res: Response, next: NextFunction) => {
 
     let bookIndex = books.findIndex((book) => book.id === id);
     if (bookIndex === -1) {
-      throw new HttpException(400, 'Book not found!');
+      throw new HttpException(404, 'Book not found!');
     }
 
     if (title) books[bookIndex].title = title;
