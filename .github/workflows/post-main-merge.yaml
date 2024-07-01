@@ -1,0 +1,43 @@
+name: Post main merge
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Cache Node.js modules
+        uses: actions/cache@v3
+        id: cache-node-modules
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install dependencies
+        run: npm install
+        shell: bash
+
+      - name: Run Prettier
+        run: npx prettier --check .
+
+      - name: Run ESLint
+        run: npx eslint .
+
+      - name: Run Tests
+        run: npm test
+
+      - name: Deployment Step
+        run: echo "Deploying... (Coming in later sessions)"
